@@ -17,10 +17,11 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const res = await axios.post(`${API_URL}/login`, {
+            const res = await axios.post(`${API_URL}/auth/login`, {
                 email,
                 password,
             });
+            console.log(res);
             //   if(res.data.status === 200) {
             //     localStorage.setItem("token", res.data.token);
             //     localStorage.setItem("user", JSON.stringify(res.data.user));
