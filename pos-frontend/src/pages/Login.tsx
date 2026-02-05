@@ -1,10 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../lib/axios";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const navigate = useNavigate();
-    const API_URL = import.meta.env.VITE_API_URL;
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -17,20 +16,21 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const res = await axios.post(`${API_URL}/auth/login`, {
-                email,
-                password,
+            const res = await api.post("/auth/login", { email, password });
+
+            const { token, user } = res.data;
+
+            if (!token || !user) {
+                throw new Error("Invalid login response");
+            }
+
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(user));
+
+            navigate(user.role === "ADMIN" ? "/dashboard" : "/pos", {
+                replace: true,
             });
-            console.log(res);
-            //   if(res.data.status === 200) {
-            //     localStorage.setItem("token", res.data.token);
-            //     localStorage.setItem("user", JSON.stringify(res.data.user));
-            //     navigate("/pos");
-            //   } else {
-            //     setError(res.data.message);
-            //   }
         } catch (err: any) {
-            navigate("/pos");
             setError(
                 err.response?.data?.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง"
             );
