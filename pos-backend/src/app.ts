@@ -3,6 +3,8 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import productRoutes from "./routes/product.routes";
 import path from "path";
+import dashboardRoutes from "./routes/dashboard.routes";
+
 const app = express();
 
 app.use(cors());
@@ -18,6 +20,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
+app.use("/dashboard", dashboardRoutes);
 
 app.listen(3000, () => {
   console.log("🚀 Server running on http://localhost:3000");

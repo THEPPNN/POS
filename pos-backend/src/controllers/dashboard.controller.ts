@@ -1,42 +1,152 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-const summary = async (_req, res) => {
-    const totalSales = await prisma.sale.aggregate({
-        _sum: { total: true },
-        _count: true,
-    });
+/**
+ * 📊 Summary
+ */
+const getSummary = async () => {
+  try {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
 
-    const todaySales = await prisma.sale.aggregate({
+    const [total, today] = await Promise.all([
+      prisma.sale.aggregate({
         _sum: { total: true },
-        where: {
-            createdAt: {
-                gte: new Date(new Date().setHours(0, 0, 0, 0)),
-            },
-        },
-    });
+        _count: { id: true },
+      }),
+      prisma.sale.aggregate({
+        _sum: { total: true },
+        _count: { id: true },
+        where: { createdAt: { gte: todayStart } },
+      }),
+    ]);
 
-    res.json({
-        totalSales: totalSales._sum.total || 0,
-        totalOrders: totalSales._count,
-        todaySales: todaySales._sum.total || 0,
-    });
+    return {
+      totalSales: total._sum.total || 0,
+      totalOrders: total._count.id || 0,
+      todaySales: today._sum.total || 0,
+      todayOrders: today._count.id || 0,
+    };
+  } catch (err) {
+    console.error("Dashboard summary error:", err);
+    throw err;
+  }
 };
 
-const topProducts = async (_req, res) => {
+/**
+ * 🏆 Top Products
+ */
+const getTopProducts = async () => {
+  try {
     const items = await prisma.saleItem.groupBy({
-        by: ["productId"],
-        _sum: { qty: true },
-        orderBy: {
-            _sum: { qty: "desc" },
-        },
-        take: 5,
+      by: ["productId"],
+      _sum: { qty: true },
+      orderBy: { _sum: { qty: "desc" } },
+      take: 5,
     });
 
-    res.json(items);
+    const products = await prisma.product.findMany({
+      where: { id: { in: items.map(i => i.productId) } },
+      select: { id: true, name: true },
+    });
+
+    return items.map(i => ({
+      productId: i.productId,
+      name: products.find(p => p.id === i.productId)?.name || "-",
+      qty: i._sum.qty || 0,
+    }));
+  } catch (err) {
+    console.error("Top products error:", err);
+    throw err;
+  }
 };
 
-export const DashboardController = {
-    summary,
-    topProducts,
+/**
+ * 📈 Sales By Day
+ */
+const getSalesByDay = async () => {
+  try {
+    return await prisma.$queryRaw`
+      SELECT 
+        DATE(createdAt) as date,
+        SUM(total) as sales
+      FROM sale
+      GROUP BY DATE(createdAt)
+      ORDER BY date ASC
+    `;
+  } catch (err) {
+    console.error("Sales by day error:", err);
+    throw err;
+  }
 };
+
+/**
+ * 💰 Profit By Day
+ */
+const getProfitByDay = async () => {
+  try {
+    return await prisma.$queryRaw`
+      SELECT 
+        DATE(s.createdAt) as date,
+        SUM((si.sellPrice - si.costPrice) * si.qty) as profit
+      FROM sale s
+      JOIN sale_items si ON si.saleId = s.id
+      GROUP BY DATE(s.createdAt)
+      ORDER BY date ASC
+    `;
+  } catch (err) {
+    console.error("Profit by day error:", err);
+    throw err;
+  }
+};
+
+/**
+ * 🧩 Sales By Category
+ */
+const getSalesByCategory = async () => {
+  try {
+    return await prisma.$queryRaw`
+      SELECT 
+        c.name as category,
+        SUM(si.sellPrice * si.qty) as sales
+      FROM sale_items si
+      JOIN product p ON p.id = si.productId
+      JOIN category c ON c.id = p.categoryId
+      GROUP BY c.name
+    `;
+  } catch (err) {
+    console.error("Sales by category error:", err);
+    throw err;
+  }
+};
+
+const allsummary = async (req, res) => {
+    try {
+      const [
+        summary,
+        topProducts,
+        salesByDay,
+        profitByDay,
+        salesByCategory,
+      ] = await Promise.all([
+        getSummary(),
+        getTopProducts(),
+        getSalesByDay(),
+        getProfitByDay(),
+        getSalesByCategory(),
+      ]);
+  
+      return res.json({
+        summary,
+        topProducts,
+        salesByDay,
+        profitByDay,
+        salesByCategory,
+      });
+    } catch (err) {
+      console.error("All summary error:", err);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  
+  export const DashboardController = { allsummary };

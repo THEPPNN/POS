@@ -20,15 +20,19 @@ model User {
 }
 
 model Product {
-  id        Int      @id @default(autoincrement())
-  name      String
-  barcode   String?   @unique
-  price     Float
-  stock     Int      @default(0)
-  image     String?
-  createdAt DateTime @default(now())
+  id         Int       @id @default(autoincrement())
+  name       String
+  barcode    String?   @unique
+  price      Float
+  stock      Int       @default(0)
+  image      String?
+  status     Status    @default(ACTIVE)
+  createdAt  DateTime  @default(now())
 
-  saleItems SaleItem[]
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  saleItems  SaleItem[]
 }
 
 model Sale {
@@ -41,14 +45,30 @@ model Sale {
 }
 
 model SaleItem {
-  id        Int   @id @default(autoincrement())
-  saleId    Int
-  productId Int
-  qty       Int
-  price     Float
+  id         Int   @id @default(autoincrement())
+  saleId     Int
+  productId  Int
+  qty        Int
 
-  sale    Sale    @relation(fields: [saleId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
+  sellPrice  Float
+  costPrice  Float?
+
+  sale       Sale    @relation(fields: [saleId], references: [id])
+  product    Product @relation(fields: [productId], references: [id])
+
+  createdAt  DateTime @default(now())
+
+  @@map("sale_items") // 👈 สำคัญ
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  status Status @default(ACTIVE)
+  products  Product[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 enum Role {

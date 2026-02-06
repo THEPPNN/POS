@@ -24,5 +24,6 @@ router.post("/", upload.single("image"), ProductController.createProduct);
 router.get("/", authGuard, ProductController.getProducts);
 router.get("/barcode/:code", authGuard, ProductController.getProductByBarcode);
 router.put("/:id", upload.single("image"), authGuard, ProductController.updateProduct);
+router.delete("/:id", authGuard, ProductController.deleteProduct);
 
 export default router;

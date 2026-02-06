@@ -49,22 +49,21 @@ export default function ProductsPage() {
       cancelButtonText: "ยกเลิก",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        console.log('removing product', id);
-        // const res = await api.delete(`/products/${id}`);
-        // if (res.status === 200) {
-        //   Swal.fire({
-        //     title: "แจ้งเตือน",
-        //     text: res.data.message,
-        //     icon: "success",
-        //   });
-        //   handleReload();
-        // } else {
-        //   Swal.fire({
-        //     title: "แจ้งเตือน",
-        //     text: res.data.message,
-        //     icon: "error",
-        //   });
-        // }
+        const res = await api.delete(`/products/${id}`);
+        if (res.status === 200) {
+          Swal.fire({
+            title: "แจ้งเตือน",
+            text: res.data.message,
+            icon: "success",
+          });
+          handleReload();
+        } else {
+          Swal.fire({
+            title: "แจ้งเตือน",
+            text: res.data.message,
+            icon: "error",
+          });
+        }
       }
     });
   };
@@ -72,6 +71,7 @@ export default function ProductsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [product, setProduct] = useState<any>(null);
   const [reload, setReload] = useState(0);
+  const [searchInput, setSearchInput] = useState("");
 
   const handleOpenModal = () => {
     setIsOpen(true);
@@ -99,7 +99,6 @@ export default function ProductsPage() {
 
   const handleSubmitProduct = async (formData: FormData) => {
     if (product) {
-      console.log('updating product', formData);
       let res = await api.put(`/products/${product.id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -147,19 +146,37 @@ export default function ProductsPage() {
   return (
 
     <div>
-      <div className="flex justify-between bg-white p-4 rounded-lg shadow-md">
+      <div className="flex justify-between bg-white p-4 shadow-md">
         <h1 className="text-2xl font-bold">จัดการสินค้า</h1>
         <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleOpenModal}>
           เพิ่มสินค้า
         </button>
       </div>
 
+
       {/* table responsive */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto bg-white p-4 shadow-md">
+      
+        <div className="m-2">
+          <label className="text-sm font-medium text-gray-600">
+            ค้นหาสินค้า
+          </label>
+          <input
+            value={searchInput}
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+              setReload(prev => prev + 1); // 👈 บังคับ reload ตาราง
+            }}
+            placeholder="ชื่อสินค้า / บาร์โค้ด"
+            className="mt-1 text-sm border rounded w-full px-3 py-2"
+          />
+        </div>
+
         <ServerDataTable
           columns={columns}
           fetchData={fetchProducts}
           reload={reload}
+          searchInput={searchInput}
         />
       </div>
 

@@ -4,7 +4,12 @@ import { authGuard } from "../middleware/authGuard";
 
 const router = Router();
 
-router.get("/summary", authGuard, DashboardController.summary);
-router.get("/top-products", authGuard, DashboardController.topProducts);
+// GET /dashboard/summary
+// GET /dashboard/sales-by-day
+// GET /dashboard/profit-by-day
+// GET /dashboard/top-products
+// GET /dashboard/sales-by-category
+
+router.get("/", authGuard, DashboardController.allsummary);
 
 export default router;

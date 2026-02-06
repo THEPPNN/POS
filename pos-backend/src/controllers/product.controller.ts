@@ -31,15 +31,15 @@ const getProducts = async (req, res) => {
         const limit = req.query.limit || 10;
         const offset = req.query.offset || 0;
         const search = req.query.search || "";
-        const where =
-            search !== ""
-                ? {
-                    name: {
-                        contains: search, // ✅ MySQL ใช้ได้
-                    },
-                }
-                : {};
+        const where: any = {
+            status: "ACTIVE",
+        };
 
+        if (search !== "") {
+            where.name = {
+                contains: search,
+            };
+        }
         const [products, total] = await Promise.all([
             prisma.product.findMany({
                 where,
@@ -63,7 +63,6 @@ const getProducts = async (req, res) => {
 
 const getProductByBarcode = async (req, res) => {
     const { code } = req.params;
-
     const product = await prisma.product.findFirst({
         where: { barcode: code },
     });
@@ -116,9 +115,24 @@ const updateProduct = async (req, res) => {
     }
 };
 
+const deleteProduct = async (req, res) => {
+    const { id } = req.params;
+    const product = await prisma.product.update(
+        {
+            where: { id: Number(id) },
+            data: { status: "INACTIVE" }
+        }
+    );
+    if (!product) {
+        return res.status(500).json({ message: "Failed to delete product" });
+    }
+    return res.status(200).json({ message: "Product deleted", product });
+};
+ 
 export const ProductController = {
     createProduct,
     getProducts,
     getProductByBarcode,
     updateProduct,
+    deleteProduct,
 };

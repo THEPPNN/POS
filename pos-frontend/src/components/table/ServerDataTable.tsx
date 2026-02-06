@@ -1,3 +1,4 @@
+// ServerDataTable.tsx
 import DataTable from "react-data-table-component";
 import { useEffect, useState } from "react";
 
@@ -9,24 +10,28 @@ type ServerDataTableProps = {
     search: string;
   }) => Promise<{ data: any[]; total: number }>;
   reload: number;
+  searchInput: string;
 };
 
 export default function ServerDataTable({
   columns,
   fetchData,
   reload,
+  searchInput,
 }: ServerDataTableProps) {
   const [data, setData] = useState<any[]>([]);
   const [totalRows, setTotalRows] = useState(0);
   const [loading, setLoading] = useState(false);
-
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-  const [search, setSearch] = useState("");
 
   const loadData = async () => {
     setLoading(true);
-    const res = await fetchData({ page, perPage, search });
+    const res = await fetchData({
+      page,
+      perPage,
+      search: searchInput, // 👈 ใช้จาก props
+    });
     setData(res.data);
     setTotalRows(res.total);
     setLoading(false);
@@ -34,8 +39,7 @@ export default function ServerDataTable({
 
   useEffect(() => {
     loadData();
-  }, [page, perPage, search, reload]);
-
+  }, [page, perPage, searchInput, reload]);
   return (
     <DataTable
       columns={columns}
@@ -51,12 +55,9 @@ export default function ServerDataTable({
       }}
       subHeader
       subHeaderComponent={
-        <input
-          className="border px-3 py-2 rounded w-64"
-          placeholder="ค้นหา..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <small className="text-sm text-gray-500 flex justify-end">
+          รายการสินค้า
+        </small>
       }
     />
   );
