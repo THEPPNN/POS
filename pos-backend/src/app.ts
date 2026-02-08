@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.routes";
 import productRoutes from "./routes/product.routes";
 import path from "path";
 import dashboardRoutes from "./routes/dashboard.routes";
+import orderRoutes from "./routes/order.routes";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/dashboard", dashboardRoutes);
+app.use("/orders", orderRoutes);
 
 app.listen(3000, () => {
   console.log("🚀 Server running on http://localhost:3000");

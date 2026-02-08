@@ -1,87 +1,102 @@
 import { useEffect, useRef, useState } from "react";
-import Swal from "sweetalert2";
-import api from "../lib/axios";
 
-export type Product = {
+type CartItem = {
   id: number;
   name: string;
-  barcode: string;
   price: number;
+  qty: number;
+  barcode: string;
 };
 
-export type CartItem = Product & { qty: number };
-
 export function usePOS() {
-  const barcodeRef = useRef<HTMLInputElement>(null);
   const [barcode, setBarcode] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
+  const barcodeRef = useRef<HTMLInputElement>(null);
+
+  // mock database
+  const PRODUCTS = [
+    { id: 1, barcode: "8850425012544", name: "น้ำดื่ม", price: 10 },
+    { id: 2, barcode: "1234567890123", name: "ขนม", price: 20 },
+  ];
 
   useEffect(() => {
     barcodeRef.current?.focus();
   }, []);
 
-  const fetchProductByBarcode = async (code: string) => {
-    try {
-      const res = await api.get(`/products/barcode/${code}`);
-      return res.data.product;
-    } catch {
-      return null;
-    }
-  };
+  const scanBarcode = (value: string) => {
+    if (!value) return;
 
-  const addToCart = (product: Product) => {
-    setCart((prev) => {
-      const exists = prev.find((i) => i.id === product.id);
-      if (exists) {
-        return prev.map((i) =>
-          i.id === product.id ? { ...i, qty: i.qty + 1 } : i
-        );
-      }
-      return [...prev, { ...product, qty: 1 }];
-    });
-  };
-
-  const scanBarcode = async (code: string) => {
-    if (!code) return;
-
-    const product = await fetchProductByBarcode(code);
-
+    const product = PRODUCTS.find(p => p.barcode === value);
     if (!product) {
-      Swal.fire("ไม่พบสินค้า", `Barcode: ${code}`, "error");
+      alert("ไม่พบสินค้า");
+      setBarcode("");
       return;
     }
 
-    addToCart(product);
+    setCart(prev => {
+      const exist = prev.find(item => item.barcode === value);
+      if (exist) {
+        return prev.map(item =>
+          item.barcode === value
+            ? { ...item, qty: item.qty + 1 }
+            : item
+        );
+      }
+
+      return [
+        ...prev,
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          qty: 1,
+          barcode: product.barcode,
+        },
+      ];
+    });
+
+    setBarcode("");
+    barcodeRef.current?.focus();
   };
 
-  const increaseQty = (id: number) => {
-    setCart((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i))
+  const increaseQty = (barcode: string) => {
+    setCart(prev =>
+      prev.map(item =>
+        item.barcode === barcode
+          ? { ...item, qty: item.qty + 1 }
+          : item
+      )
     );
   };
 
-  const decreaseQty = (id: number) => {
-    setCart((prev) =>
+  const decreaseQty = (barcode: string) => {
+    setCart(prev =>
       prev
-        .map((i) => (i.id === id ? { ...i, qty: i.qty - 1 } : i))
-        .filter((i) => i.qty > 0)
+        .map(item =>
+          item.barcode === barcode
+            ? { ...item, qty: item.qty - 1 }
+            : item
+        )
+        .filter(item => item.qty > 0)
     );
   };
 
-  const removeFromCart = (id: number) => {
-    setCart((prev) => prev.filter((i) => i.id !== id));
+  const removeFromCart = (barcode: string) => {
+    setCart(prev => prev.filter(item => item.barcode !== barcode));
   };
 
-  const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
 
   return {
-    barcodeRef,
     barcode,
     setBarcode,
+    barcodeRef,
     cart,
     total,
     scanBarcode,
-    addToCart,
     increaseQty,
     decreaseQty,
     removeFromCart,

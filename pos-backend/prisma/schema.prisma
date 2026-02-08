@@ -41,6 +41,7 @@ model Sale {
   userId    Int
   user      User       @relation(fields: [userId], references: [id])
   items     SaleItem[]
+  status Status @default(ACTIVE)
   createdAt DateTime   @default(now())
 }
 

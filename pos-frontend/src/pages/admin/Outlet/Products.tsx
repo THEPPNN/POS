@@ -177,6 +177,7 @@ export default function ProductsPage() {
           fetchData={fetchProducts}
           reload={reload}
           searchInput={searchInput}
+          title="รายการสินค้า"
         />
       </div>
 

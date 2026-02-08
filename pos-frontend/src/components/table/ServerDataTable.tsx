@@ -10,6 +10,7 @@ type ServerDataTableProps = {
     search: string;
   }) => Promise<{ data: any[]; total: number }>;
   reload: number;
+  title: string;
   searchInput: string;
 };
 
@@ -17,6 +18,7 @@ export default function ServerDataTable({
   columns,
   fetchData,
   reload,
+  title,
   searchInput,
 }: ServerDataTableProps) {
   const [data, setData] = useState<any[]>([]);
@@ -30,7 +32,7 @@ export default function ServerDataTable({
     const res = await fetchData({
       page,
       perPage,
-      search: searchInput, // 👈 ใช้จาก props
+      search: searchInput,
     });
     setData(res.data);
     setTotalRows(res.total);
@@ -56,7 +58,7 @@ export default function ServerDataTable({
       subHeader
       subHeaderComponent={
         <small className="text-sm text-gray-500 flex justify-end">
-          รายการสินค้า
+          { title}
         </small>
       }
     />
