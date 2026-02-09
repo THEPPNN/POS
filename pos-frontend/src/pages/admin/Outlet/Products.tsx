@@ -165,11 +165,11 @@ export default function ProductsPage() {
             value={searchInput}
             onChange={(e) => {
               setSearchInput(e.target.value);
-              setReload(prev => prev + 1); // 👈 บังคับ reload ตาราง
             }}
             placeholder="ชื่อสินค้า / บาร์โค้ด"
             className="mt-1 text-sm border rounded w-full px-3 py-2"
           />
+
         </div>
 
         <ServerDataTable

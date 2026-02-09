@@ -40,8 +40,13 @@ export default function ServerDataTable({
   };
 
   useEffect(() => {
-    loadData();
-  }, [page, perPage, searchInput, reload]);
+    const t = setTimeout(() => {
+      loadData();
+    }, 400);
+  
+    return () => clearTimeout(t);
+  }, [searchInput, page, perPage, reload]);
+  
   return (
     <DataTable
       columns={columns}
