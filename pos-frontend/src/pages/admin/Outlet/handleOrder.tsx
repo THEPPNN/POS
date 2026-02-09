@@ -3,7 +3,7 @@ import { useState } from "react";
 import api from "../../../lib/axios";
 import Swal from "sweetalert2";
 
-export const handleOrder = (setReloadHistory: React.Dispatch<React.SetStateAction<number>>) => {
+export const handleOrder = (setReloadHistory: React.Dispatch<React.SetStateAction<number>>, setReload: React.Dispatch<React.SetStateAction<number>>) => {
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<any>(null);
   const [open, setOpen] = useState(false);
@@ -38,6 +38,7 @@ export const handleOrder = (setReloadHistory: React.Dispatch<React.SetStateActio
               text: res.data.message,
               icon: "success",
             });
+            setReload(prev => prev + 1);
             setReloadHistory(prev => prev + 1);
           }
           if (res.status === 500) {

@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `Sale` ADD COLUMN `change` DOUBLE NULL,
+    ADD COLUMN `method` ENUM('CASH', 'CREDIT', 'TRANSFER', 'OTHER') NULL,
+    ADD COLUMN `received` DOUBLE NULL;

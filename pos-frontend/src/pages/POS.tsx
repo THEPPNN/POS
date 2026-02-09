@@ -6,6 +6,7 @@ import BarcodeInput from "../components/pos/BarcodeInput";
 import ProductList from "../components/pos/ProductList";
 import { usePOS } from "./admin/Outlet/UsePos";
 import { handleOrder } from "./admin/Outlet/handleOrder";
+import { ModalPay } from "./admin/Outlet/ModalPay";
 
 type Product = {
   id: number;
@@ -14,9 +15,9 @@ type Product = {
   price: number;
 };
 
-type CartItem = Product & {
-  qty: number;
-};
+// type CartItem = Product & {
+//   qty: number;
+// };
 
 export default function POS() {
   const barcodeRef = useRef<HTMLInputElement>(null);
@@ -118,7 +119,7 @@ export default function POS() {
     setOpen,
     order,
     loading,
-    } = handleOrder(setReloadHistory);
+    } = handleOrder(setReloadHistory,setReload);
 
   
   const {
@@ -131,10 +132,20 @@ export default function POS() {
     setCart,
   } = usePOS();
     
-  const handlePay = async () => {
+
+  const [openPay, setOpenPay] = useState(false);
+
+  const modalPay = () => {
+    setOpenPay(true);
+  };
+  
+  const handlePay = async (data: any) => {
     try {
       const res = await api.post("/orders", {
         total: total,
+        method: data.method,
+        received: data.received,
+        change: data.change,
         items: cart.map((i) => ({
           productId: i.id,
           qty: i.qty,
@@ -148,6 +159,7 @@ export default function POS() {
           icon: "success",
         });
         setCart([]);
+        setReload(prev => prev + 1); // 👈 บังคับ reload ตาราง
         setReloadHistory(prev => prev + 1);
       }
       else {
@@ -168,6 +180,15 @@ export default function POS() {
 
   return (
     <div className="h-screen bg-gray-100 p-4 flex gap-4">
+      {openPay && (
+        <ModalPay
+          total={total}
+          setOpen={setOpenPay}
+          onConfirm={(data) => {
+            handlePay(data);
+          }}
+        />
+      )}
       {/* LEFT */}
       <div className="w-1/3 bg-white rounded shadow p-4 flex flex-col gap-3">
 
@@ -226,7 +247,7 @@ export default function POS() {
           </p>
 
           <button
-            onClick={handlePay}
+            onClick={() => modalPay()}
             className="bg-green-600 text-white text-xl py-4 rounded w-full mt-4"
           >
             ชำระเงิน

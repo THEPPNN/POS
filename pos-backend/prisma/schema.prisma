@@ -41,6 +41,10 @@ model Sale {
   userId    Int
   user      User       @relation(fields: [userId], references: [id])
   items     SaleItem[]
+  method     PaymentMethod
+  received   Float?        // เงินที่ลูกค้าจ่าย (เฉพาะเงินสด)
+  change     Float?        // เงินทอน (เฉพาะเงินสด)
+  
   status Status @default(ACTIVE)
   createdAt DateTime   @default(now())
 }
@@ -80,4 +84,11 @@ enum Role {
 enum Status {
   ACTIVE
   INACTIVE
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT
+  TRANSFER
+  OTHER
 }

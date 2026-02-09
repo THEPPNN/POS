@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PaymentMethod, PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const getOrders = async (req, res) => {
@@ -43,6 +43,7 @@ const getOrderById = async (req, res) => {
 };
 const createOrder = async (req, res) => {
     const { items } = req.body;
+    const { method, received, change } = req.body;
     const userId = req.user.id;
 
     let total = 0;
@@ -70,6 +71,9 @@ const createOrder = async (req, res) => {
         data: {
             total,
             userId,
+            method: method as PaymentMethod,
+            received,
+            change,
             items: {
                 create: items.map(i => ({
                     productId: i.productId,
