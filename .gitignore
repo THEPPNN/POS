@@ -37,7 +37,6 @@ uploads/**
 # ถ้าอยาก ignore เฉพาะไฟล์รูป
 *.jpg
 *.jpeg
-*.png
 *.gif
 *.webp
 
