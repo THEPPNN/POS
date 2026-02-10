@@ -1,5 +1,5 @@
-![All Page](./screenshots/pos.png)
-![All Page](./screenshots/Screenshort.png)
+![All Page](./screenshorts/pos.png)
+![All Page](./screenshorts/Screenshort.png)
 
 🧾 POS System – ระบบขายหน้าร้าน
 
