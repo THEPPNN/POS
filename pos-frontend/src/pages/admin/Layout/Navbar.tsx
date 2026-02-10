@@ -1,27 +1,15 @@
 import { useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 
 export default function AdminLayout() {
-    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // logout button
-    const handleLogout = async () => {
+    const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        navigate("/login");
+        window.location.reload();
     };
-    // const handleLogout = async () => {
-    //     try {
-    //         await api.post("/auth/logout");
-    //         localStorage.removeItem("token");
-    //         localStorage.removeItem("user");
-    //         navigate("/login");
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // };
+
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}

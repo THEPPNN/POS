@@ -41,34 +41,6 @@ export const login = async (req: Request, res: Response) => {
     });
 };
 
-// export const me = async (req: Request, res: Response) => {
-//     const userId = req.user.id;
-
-//     const user = await prisma.user.findUnique({
-//         where: { id: userId },
-//         select: {
-//             id: true,
-//             name: true,
-//             email: true,
-//             role: true,
-//             status: true,
-//         },
-//     });
-//     if (!user) {
-//         return res.status(401).json({ message: "User not found" });
-//     }
-//     if (user.status !== "ACTIVE") {
-//         return res.status(403).json({ message: "User inactive" });
-//     }
-//     return res.status(200).json({ message: "User found", user });
-// };
-
-export const logout = async (_req: Request, res: Response) => {
-    return res.status(200).json({ message: "Logged out" });
-};
-
 export const AuthController = {
     login,
-    // me,
-    logout,
 };
