@@ -16,22 +16,22 @@ export const ModalPay = ({
   }) => void;
 }) => {
   const [method, setMethod] = useState<PayMethod>("CASH");
-  const [received, setReceived] = useState<number>(0);
+  const [received, setReceived] = useState<string>("");
 
   const change = useMemo(() => {
     if (method !== "CASH") return 0;
-    return Math.max(received - total, 0);
+    return Math.max(Number(received) - total, 0);
   }, [received, total, method]);
 
   const canPay = useMemo(() => {
-    if (method === "CASH") return received >= total;
+    if (method === "CASH") return Number(received) >= total;
     return true;
   }, [method, received, total]);
 
   const handleConfirm = () => {
     onConfirm({
       method,
-      received: method === "CASH" ? received : undefined,
+      received: method === "CASH" ? Number(received) : 0,
       change: method === "CASH" ? change : undefined,
     });
     setOpen(false);
@@ -56,33 +56,29 @@ export const ModalPay = ({
           <label className="font-medium">ช่องทางการชำระเงิน</label>
           <div className="grid grid-cols-2 gap-2">
             <button
-              className={`border p-2 rounded ${
-                method === "CASH" ? "bg-blue-500 text-white" : ""
-              }`}
+              className={`border p-2 rounded ${method === "CASH" ? "bg-blue-500 text-white" : ""
+                }`}
               onClick={() => setMethod("CASH")}
             >
               💵 เงินสด
             </button>
             <button
-              className={`border p-2 rounded ${
-                method === "CREDIT" ? "bg-blue-500 text-white" : ""
-              }`}
+              className={`border p-2 rounded ${method === "CREDIT" ? "bg-blue-500 text-white" : ""
+                }`}
               onClick={() => setMethod("CREDIT")}
             >
               💳 บัตรเครดิต
             </button>
             <button
-              className={`border p-2 rounded ${
-                method === "TRANSFER" ? "bg-blue-500 text-white" : ""
-              }`}
+              className={`border p-2 rounded ${method === "TRANSFER" ? "bg-blue-500 text-white" : ""
+                }`}
               onClick={() => setMethod("TRANSFER")}
             >
               📱 โอนเงิน
             </button>
             <button
-              className={`border p-2 rounded ${
-                method === "OTHER" ? "bg-blue-500 text-white" : ""
-              }`}
+              className={`border p-2 rounded ${method === "OTHER" ? "bg-blue-500 text-white" : ""
+                }`}
               onClick={() => setMethod("OTHER")}
             >
               🧾 อื่น ๆ
@@ -94,11 +90,15 @@ export const ModalPay = ({
         {method === "CASH" && (
           <div className="space-y-2">
             <label className="font-medium">รับเงิน</label>
+
             <input
               type="number"
               className="border rounded w-full p-2"
               value={received}
-              onChange={(e) => setReceived(Number(e.target.value))}
+              min={0}
+              onChange={(e) => {
+                setReceived(e.target.value);
+              }}
               placeholder="จำนวนเงินที่ลูกค้าจ่าย"
             />
 
@@ -115,9 +115,8 @@ export const ModalPay = ({
         <button
           disabled={!canPay}
           onClick={handleConfirm}
-          className={`w-full p-3 rounded text-white font-bold ${
-            canPay ? "bg-green-500 hover:bg-green-600" : "bg-gray-300"
-          }`}
+          className={`w-full p-3 rounded text-white font-bold ${canPay ? "bg-green-500 hover:bg-green-600" : "bg-gray-300"
+            }`}
         >
           ยืนยันการชำระเงิน
         </button>

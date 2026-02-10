@@ -42,6 +42,7 @@ const getTopProducts = async () => {
       by: ["productId"],
       _sum: { qty: true },
       orderBy: { _sum: { qty: "desc" } },
+      where: { sale: { status: "ACTIVE" } },
       take: 5,
     });
 
@@ -66,14 +67,19 @@ const getTopProducts = async () => {
  */
 const getSalesByDay = async () => {
   try {
-    return await prisma.$queryRaw`
+    // ยอดขาย 7 วันล่าสุด
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sales = await prisma.$queryRaw`
       SELECT 
         DATE(createdAt) as date,
-        SUM(total) as sales
+        SUM(total) as total
       FROM sale
+      WHERE createdAt >= ${sevenDaysAgo} AND createdAt <= ${new Date()} AND status = 'ACTIVE'
       GROUP BY DATE(createdAt)
       ORDER BY date ASC
     `;
+    return sales;
   } catch (err) {
     console.error("Sales by day error:", err);
     throw err;
@@ -120,6 +126,16 @@ const getSalesByCategory = async () => {
   }
 };
 
+const getLowStock = async () => {
+  try {
+    return await prisma.product.findMany({
+      where: { stock: { lt: 10 } },
+    });
+  } catch (err) {
+    console.error("Low stock error:", err);
+    throw err;
+  }
+};
 const allsummary = async (req, res) => {
     try {
       const [
@@ -128,12 +144,14 @@ const allsummary = async (req, res) => {
         salesByDay,
         profitByDay,
         salesByCategory,
+        lowStock,
       ] = await Promise.all([
         getSummary(),
         getTopProducts(),
         getSalesByDay(),
         getProfitByDay(),
         getSalesByCategory(),
+        getLowStock(),
       ]);
   
       return res.json({
@@ -142,9 +160,9 @@ const allsummary = async (req, res) => {
         salesByDay,
         profitByDay,
         salesByCategory,
+        lowStock,
       });
     } catch (err) {
-      console.error("All summary error:", err);
       return res.status(500).json({ message: "Internal server error" });
     }
   };

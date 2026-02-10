@@ -17,10 +17,9 @@ export default function Dashboard() {
       try {
         const { data } = await api.get("/dashboard");
         setSummary(data.summary);
-        setChart(data.salesByDay);
+        setChart(data.salesByDay.map((item: any) => ({date: new Date(item.date).toLocaleDateString('th-TH'), total: item.total})));
         setTopProducts(data.topProducts);
-        // 🔥 low stock ควรมี api แยก
-        // setLowStock(data.lowStock);
+        setLowStock(data.lowStock);
       } catch (err) {
         console.error("Dashboard error", err);
       } finally {

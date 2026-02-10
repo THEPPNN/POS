@@ -62,9 +62,9 @@ export default function ServerDataTable({
       }}
       subHeader
       subHeaderComponent={
-        <small className="text-sm text-gray-500 flex justify-end">
+        <p className="text-sm text-gray-500">
           { title}
-        </small>
+        </p>
       }
     />
   );
