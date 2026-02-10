@@ -40,12 +40,16 @@ export default function AdminLayout() {
                         🏠 หน้าแรก
                     </NavLink>
 
+                    <NavLink to="/reports" className={navClass}>
+                        📊 รายงาน
+                    </NavLink>
+
                     <NavLink to="/products" className={navClass}>
                         📦 จัดการสินค้า
                     </NavLink>
 
-                    <NavLink to="/reports" className={navClass}>
-                        📊 รายงาน
+                    <NavLink to="/users" className={navClass}>
+                        👥 จัดการผู้ใช้งาน
                     </NavLink>
 
                     <NavLink to="/pos" target="_blank" className={navClass}>

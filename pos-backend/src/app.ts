@@ -6,6 +6,7 @@ import path from "path";
 import dashboardRoutes from "./routes/dashboard.routes";
 import orderRoutes from "./routes/order.routes";
 import reportRoutes from "./routes/report.routes";
+import userRoutes from "./routes/user.routes";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/products", productRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/orders", orderRoutes);
 app.use("/reports", reportRoutes);
+app.use("/users", userRoutes);
 
 app.listen(3000, () => {
   console.log("🚀 Server running on http://localhost:3000");

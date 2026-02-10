@@ -84,6 +84,7 @@ enum Role {
 enum Status {
   ACTIVE
   INACTIVE
+  DELETED
 }
 
 enum PaymentMethod {

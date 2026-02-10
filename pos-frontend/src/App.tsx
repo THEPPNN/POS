@@ -6,6 +6,7 @@ import Dashboard from "./pages/admin/Outlet/Dashboard";
 import Products from "./pages/admin/Outlet/Products";
 import AdminLayout from "./pages/admin/Layout/Navbar";
 import Reports from "./pages/admin/Outlet/Reports";
+import Users from "./pages/admin/Outlet/Users";
 
 export default function App() {
   return (
@@ -51,6 +52,17 @@ export default function App() {
           }
         >
           <Route index element={<Reports />} />
+        </Route>
+
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Users />} />
         </Route>
 
       </Routes>
