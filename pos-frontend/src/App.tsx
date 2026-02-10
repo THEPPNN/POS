@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import POS from "./pages/POS";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -11,6 +11,10 @@ import Users from "./pages/admin/Outlet/Users";
 export default function App() {
   return (
     <BrowserRouter>
+    {/* if url is only / then redirect to /login */}
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+    </Routes>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
